@@ -296,53 +296,6 @@
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
 
-  /* ── ANONYMOUS TOGGLE ── */
-  .anon-box {
-    background: var(--purple-light);
-    border: 2px solid var(--purple);
-    border-radius: var(--radius);
-    padding: 18px 22px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .anon-icon { font-size: 32px; flex-shrink: 0; }
-  .anon-text strong { font-size: 15px; color: var(--purple); }
-  .anon-text p { font-size: 13px; color: var(--text-soft); margin-top: 3px; }
-
-  .toggle-wrap { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
-  .toggle-input { display: none; }
-  .toggle-track {
-    width: 52px; height: 28px;
-    background: var(--border);
-    border-radius: 999px;
-    position: relative;
-    cursor: pointer;
-    transition: background .2s;
-  }
-  .toggle-input:checked + .toggle-track { background: var(--purple); }
-  .toggle-thumb {
-    position: absolute;
-    top: 4px; left: 4px;
-    width: 20px; height: 20px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform .2s;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  }
-  .toggle-input:checked + .toggle-track .toggle-thumb { transform: translateX(24px); }
-  .toggle-label { font-size: 13px; font-weight: 700; color: var(--purple); }
-
-  /* ── URGENT SECTION ── */
-  .urgent-section {
-    background: var(--rose-light);
-    border: 2.5px solid var(--rose);
-  }
-  .urgent-section .section-num { background: var(--rose); }
-  .urgent-section .section-header { border-bottom-color: #f5c6c6; }
-  .urgent-opt:has(input:checked) { border-color: var(--rose) !important; background: var(--rose-light) !important; }
-  .urgent-opt input:checked ~ .opt-box { background: var(--rose) !important; border-color: var(--rose) !important; }
-
   /* ── SUBMIT ── */
   .submit-area {
     background: var(--white);
@@ -411,10 +364,7 @@
   <h2>💛 Энд хандсанд баярлалаа</h2>
   <p>
     Энэ форм нь чамд аюулгүй, хэн ч мэдэхгүй газар өөрийн болон найзынхаа талаар мэдэгдэх боломжийг олгодог.
-    Чиний бичсэн мэдээлэл зөвхөн сургуулийн мэдэгдсэн багш, удирдлагад хүрнэ — өөр хэнд ч дамжихгүй.
-  </p>
-  <p>
-    Та нэрээ бичих эсвэл нууцлах эрхтэй. Аль ч тохиолдолд бид чамд тусалхыг хүсдэг. 💙
+    Чиний бичсэн мэдээлэл зөвхөн сургуулийн нийгмийн ажилтан болон удирдлагад хүрнэ, өөр хэнд ч хүргэгдэхгүй.
   </p>
   <div class="promise-row">
     <span class="promise-pill">🔒 Нууцлалтай</span>
@@ -437,22 +387,6 @@
 <!-- MAIN FORM -->
 <div id="formWrap"><form class="form-wrap" id="reportForm" onsubmit="return false;">
 
-  <!-- ── SECTION 0: ANONYMOUS TOGGLE ── -->
-  <div class="anon-box">
-    <span class="anon-icon">🎭</span>
-    <div class="anon-text">
-      <strong>Нэрээ нууцлах уу?</strong>
-      <p>Тохируулгыг асааж нэрээ хэлэхгүй байж болно.</p>
-    </div>
-    <div class="toggle-wrap">
-      <input type="checkbox" class="toggle-input" id="anonToggle" onchange="toggleAnon(this)">
-      <label class="toggle-track" for="anonToggle">
-        <span class="toggle-thumb"></span>
-      </label>
-      <span class="toggle-label">Нууцлах</span>
-    </div>
-  </div>
-
   <!-- ── SECTION 1: ТУХАЙН СУРАГЧ ── -->
   <div class="section-card">
     <div class="section-header">
@@ -464,8 +398,7 @@
     </div>
     <div class="section-body">
 
-      <div class="anon-fields" id="anonFields">
-        <div class="row2">
+      <div class="row2">
           <div class="field">
             <label class="field-label">
               Нэр, овог
@@ -491,27 +424,38 @@
             </div>
           </div>
         </div>
+
+      <div class="field">
+        <label class="field-label">Ангийн түвшин <span class="req">*</span></label>
+        <div class="options-grid" style="grid-template-columns:1fr 1fr;">
+          <label class="opt-item" id="lbl-dundangi">
+            <input type="radio" name="schoolLevel" value="dund" onchange="onLevelChange()">
+            <span class="opt-box"></span>
+            <span class="opt-emoji">📘</span>
+            <span class="opt-label">Дунд анги (6–9)</span>
+          </label>
+          <label class="opt-item" id="lbl-akhlakhangi">
+            <input type="radio" name="schoolLevel" value="akhlakh" onchange="onLevelChange()">
+            <span class="opt-box"></span>
+            <span class="opt-emoji">🎓</span>
+            <span class="opt-label">Ахлах анги (10–12)</span>
+          </label>
+        </div>
       </div>
 
-      <div class="row2">
+      <div class="row2" id="angi-buleg-row" style="display:none;">
         <div class="field">
           <label class="field-label">Анги <span class="req">*</span></label>
           <select id="f_angi" required>
             <option value="">Анги сонгох</option>
-            <option>1-р анги</option><option>2-р анги</option><option>3-р анги</option>
-            <option>4-р анги</option><option>5-р анги</option><option>6-р анги</option>
-            <option>7-р анги</option><option>8-р анги</option><option>9-р анги</option>
-            <option>10-р анги</option><option>11-р анги</option><option>12-р анги</option>
           </select>
         </div>
         <div class="field">
           <label class="field-label">Бүлэг <span class="req">*</span></label>
           <select id="f_buleg" required>
             <option value="">Бүлэг сонгох</option>
-            <option>1-р бүлэг</option><option>2-р бүлэг</option><option>3-р бүлэг</option>
-            <option>4-р бүлэг</option><option>5-р бүлэг</option><option>6-р бүлэг</option>
-            <option>7-р бүлэг</option><option>8-р бүлэг</option><option>9-р бүлэг</option>
-            <option>10-р бүлэг</option><option>11-р бүлэг</option><option>12-р бүлэг</option>
+            <option>А бүлэг</option><option>Б бүлэг</option><option>В бүлэг</option>
+            <option>Г бүлэг</option><option>Д бүлэг</option>
           </select>
         </div>
       </div>
@@ -734,89 +678,10 @@
     </div>
   </div>
 
-  <!-- ── SECTION 5: ЯАРАЛТАЙ ТУСЛАМЖ ── -->
-  <div class="section-card urgent-section">
-    <div class="section-header">
-      <div class="section-num">🆘</div>
-      <div>
-        <h3>Яаралтай тусламж хэрэгтэй эсэх</h3>
-        <p>Чиний аюулгүй байдал маш чухал</p>
-      </div>
-    </div>
-    <div class="section-body">
-      <div class="field">
-        <label class="field-label">Одоо яаралтай тусламж хэрэгтэй байна уу? <span class="req">*</span></label>
-        <div class="options-col">
-          <label class="opt-item urgent-opt">
-            <input type="radio" name="urgent" value="ЯАРАЛТАЙ — эрүүл мэнд, аюул" required>
-            <span class="opt-box"></span>
-            <span class="opt-emoji">🚨</span>
-            <span class="opt-label">Тийм — яаралтай тусламж хэрэгтэй (эрүүл мэнд, аюул)</span>
-          </label>
-          <label class="opt-item urgent-opt">
-            <input type="radio" name="urgent" value="Удахгүй тусламж хэрэгтэй">
-            <span class="opt-box"></span>
-            <span class="opt-emoji">⚡</span>
-            <span class="opt-label">Удахгүй тусламж хэрэгтэй (их санаа зовж байна)</span>
-          </label>
-          <label class="opt-item">
-            <input type="radio" name="urgent" value="Яаралтай биш, мэдэгдэж байна">
-            <span class="opt-box"></span>
-            <span class="opt-emoji">📋</span>
-            <span class="opt-label">Яаралтай биш, зүгээр л мэдэгдэж байна</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="field-label">Одоо өөрийгөө хэрхэн мэдэрч байна? <span class="opt-tag">Заавал биш</span></label>
-        <div class="options-grid">
-          <label class="opt-item">
-            <input type="checkbox" name="feeling" value="Айж байна">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">😨</span>
-            <span class="opt-label">Айж байна</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="feeling" value="Гунигтай байна">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">😢</span>
-            <span class="opt-label">Гунигтай байна</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="feeling" value="Уурлаж байна">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">😠</span>
-            <span class="opt-label">Уурлаж байна</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="feeling" value="Эргэлзэж байна">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">😕</span>
-            <span class="opt-label">Эргэлзэж байна</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="feeling" value="Хэвийн байна">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">😐</span>
-            <span class="opt-label">Хэвийн байна</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="feeling" value="Зоригтой байна">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">💪</span>
-            <span class="opt-label">Зоригтой мэдэгдэж байна</span>
-          </label>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── SECTION 6: НЭМЭЛТ ── -->
+  <!-- ── SECTION 5: НЭМЭЛТ ── -->
   <div class="section-card">
     <div class="section-header">
-      <div class="section-num">6</div>
+      <div class="section-num">5</div>
       <div>
         <h3>Нэмэлт мэдээлэл</h3>
         <p>Бусад хэлэхийг хүссэн зүйл</p>
@@ -871,36 +736,6 @@
       </div>
 
       <div class="field">
-        <label class="field-label">Бид чамд ямар тусламж үзүүлэх вэ? <span class="opt-tag">Заавал биш</span></label>
-        <div class="options-col">
-          <label class="opt-item">
-            <input type="checkbox" name="help" value="Багш сэтгэл зүйчтэй ярилцуулах">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">🗣️</span>
-            <span class="opt-label">Багш / сэтгэл зүйчтэй ярилцуулах</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="help" value="Дээрэлхэгчтэй зохицуулалт хийх">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">🤝</span>
-            <span class="opt-label">Дээрэлхэгчтэй зохицуулалт хийх</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="help" value="Эцэг эхэд мэдэгдэх">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">👨‍👩‍👧</span>
-            <span class="opt-label">Эцэг эхэд мэдэгдэх</span>
-          </label>
-          <label class="opt-item">
-            <input type="checkbox" name="help" value="Зөвхөн бүртгэгдэх хүсэлтэй">
-            <span class="chk-box"></span>
-            <span class="opt-emoji">📋</span>
-            <span class="opt-label">Зүгээр л бүртгэгдэх хүсэлтэй, шууд арга хэмжээ хэрэггүй</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field">
         <label class="field-label">Нэмэлт хэлэхийг хүссэн зүйл байна уу? <span class="opt-tag">Заавал биш</span></label>
         <textarea id="f_nemeltel" placeholder="Энд чөлөөтэй бичнэ үү — ямар ч зүйл хэлж болно, шүүмжлэхгүй..."></textarea>
       </div>
@@ -923,13 +758,26 @@
   </div>
 <script>
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzI77mqFrMuRoSn3u3shmM1NgqlwCql3ncjF2BvzX7V_eJE-0K95le859Hax1h1WrB/exec";
+  var EMAIL_AKHLAKH = "uudusbayarsaikhan@gmail.com";
+  var EMAIL_DUND    = "m24mf2041@ufe.edu.mn";
 
-  function toggleAnon(el) {
-    var f = document.getElementById("anonFields");
-    f.style.opacity = el.checked ? "0.3" : "1";
-    f.style.pointerEvents = el.checked ? "none" : "auto";
+
+  function onLevelChange() {
+    var level = getRadio("schoolLevel");
+    var angiSel = document.getElementById("f_angi");
+    var row = document.getElementById("angi-buleg-row");
+    row.style.display = "grid";
+    angiSel.innerHTML = "<option value=\"\">" + "Анги сонгох" + "</option>";
+    var opts = level === "akhlakh"
+      ? ["10-р анги","11-р анги","12-р анги"]
+      : ["6-р анги","7-р анги","8-р анги","9-р анги"];
+    opts.forEach(function(o) {
+      var op = document.createElement("option");
+      op.text = o; op.value = o;
+      angiSel.appendChild(op);
+    });
+    angiSel.selectedIndex = 0;
   }
-
   function getRadio(name) {
     var el = document.querySelector('input[name="' + name + '"]:checked');
     return el ? el.value : "";
@@ -959,16 +807,13 @@
   }
 
   function buildMsg() {
-    var anon = document.getElementById("anonToggle").checked;
     var lines = [];
     lines.push("=== ДЭЭРЭЛХЭЛТИЙН МЭДЭГДЭЛ ===");
     lines.push("");
     lines.push("[1. МЭДЭГДЭГЧИЙН МЭДЭЭЛЭЛ]");
-    lines.push("Нэрээ нууцалсан : " + (anon ? "Тийм" : "Үгүй"));
-    if (!anon) {
-      lines.push("Нэр, овог       : " + vText("f_ner"));
-      lines.push("Хүйс            : " + (getRadio("gender") || "Хоосон"));
-    }
+    lines.push("Нэр, овог       : " + vText("f_ner"));
+    lines.push("Хүйс            : " + (getRadio("gender") || "Хоосон"));
+    lines.push("Ангийн түвшин   : " + (getRadio("schoolLevel") === "akhlakh" ? "Ахлах анги" : "Дунд анги"));
     lines.push("Анги            : " + selText("f_angi"));
     lines.push("Бүлэг           : " + selText("f_buleg"));
     lines.push("Мэдэгдэгч       : " + (getRadio("reporter") || "Хоосон"));
@@ -993,11 +838,7 @@
     lines.push("Нэмэлт тодорхойлолт:");
     lines.push(vText("f_bully_todorh"));
     lines.push("");
-    lines.push("[5. ЯАРАЛТАЙ ТУСЛАМЖ]");
-    lines.push("Яаралтай эсэх   : " + (getRadio("urgent") || "Хоосон"));
-    lines.push("Мэдрэмж         : " + getChecks("feeling"));
-    lines.push("");
-    lines.push("[6. НЭМЭЛТ МЭДЭЭЛЭЛ]");
+    lines.push("[5. НЭМЭЛТ МЭДЭЭЛЭЛ]");
     lines.push("Өмнө мэдэгдсэн  : " + (getRadio("prevReport") || "Хоосон"));
     lines.push("Нотлох баримт   : " + getChecks("evidence"));
     lines.push("Хэрэгтэй тусламж: " + getChecks("help"));
@@ -1010,6 +851,7 @@
   }
 
   function validate() {
+    if (!getRadio("schoolLevel")) { alert("Ангийн түвшинг сонгоно уу!"); return false; }
     if (vSelect("f_angi") === 0) { alert("Анги сонгоно уу!"); return false; }
     if (vSelect("f_buleg") === 0) { alert("Бүлэг сонгоно уу!"); return false; }
     if (!getRadio("reporter")) { alert("Мэдэгдэгчийг сонгоно уу!"); return false; }
@@ -1017,7 +859,6 @@
     if (vSelect("f_gazar") === 0) { alert("Болсон газар сонгоно уу!"); return false; }
     if (vText("f_tailbar") === "Хоосон") { alert("Дэлгэрэнгүй тайлбар бичнэ үү!"); return false; }
     if (vText("f_bully_todorh") === "Хоосон") { alert("Дээрэлхэгчийн нэмэлт тодорхойлолт бичнэ үү!"); return false; }
-    if (!getRadio("urgent")) { alert("Яаралтай эсэхийг сонгоно уу!"); return false; }
     return true;
   }
 
@@ -1027,15 +868,14 @@
     btn.innerHTML = "Илгээж байна...";
     btn.disabled = true;
 
-    var anon = document.getElementById("anonToggle").checked;
     var clientCode = Math.floor(100000 + Math.random() * 900000).toString();
     var payload = {
       clientCode: clientCode,
       message: buildMsg(),
       angi: selText("f_angi"),
       buleg: selText("f_buleg"),
-      ner: anon ? "Нууцлагдсан" : vText("f_ner"),
-      huiis: anon ? "Нууцлагдсан" : (getRadio("gender") || "Хоосон"),
+      ner: vText("f_ner"),
+      huiis: getRadio("gender") || "Хоосон",
       medegedech: getRadio("reporter"),
       torlud: getChecks("type"),
       davtamj: getRadio("frequency"),
@@ -1047,8 +887,8 @@
       bully_angi: vText("f_bully_angi"),
       bully_huiis: getRadio("bullyGender"),
       bully_todorh: vText("f_bully_todorh"),
-      urgent: getRadio("urgent"),
-      medremj: getChecks("feeling"),
+      schoolLevel: getRadio("schoolLevel") === "akhlakh" ? "Ахлах анги" : "Дунд анги",
+      recipientEmail: getRadio("schoolLevel") === "akhlakh" ? EMAIL_AKHLAKH : EMAIL_DUND,
       omno_medegsed: getRadio("prevReport"),
       notloh: getChecks("evidence"),
       tuslam: getChecks("help"),
@@ -1076,8 +916,6 @@
     document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach(function(el) { el.checked = false; });
     document.querySelectorAll("select").forEach(function(el) { el.selectedIndex = 0; });
     var og = document.getElementById("f_ognoo"); if (og) og.value = "";
-    var tog = document.getElementById("anonToggle"); if (tog) tog.checked = false;
-    toggleAnon({ checked: false });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 </script>
