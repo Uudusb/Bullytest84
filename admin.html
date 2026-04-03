@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Багшийн Dashboard — Мэдэгдлийн удирдлага</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Nunito",sans-serif;background:#F0F7FF;color:#2D3748;min-height:100vh}
@@ -21,10 +20,14 @@ body{font-family:"Nunito",sans-serif;background:#F0F7FF;color:#2D3748;min-height
 .divider{display:flex;align-items:center;gap:12px;margin-bottom:24px}
 .divider hr{flex:1;border:none;border-top:1.5px solid #E2E8F0}
 .divider span{font-size:12px;color:#A0AEC0;font-weight:700;white-space:nowrap}
-.google-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;background:#fff;border:2px solid #E2E8F0;border-radius:14px;padding:14px 20px;font-family:"Nunito",sans-serif;font-size:15px;font-weight:800;color:#2D3748;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.google-btn:hover{border-color:#5BA4CF;box-shadow:0 4px 16px rgba(91,164,207,.2);transform:translateY(-1px)}
-.google-btn img{width:22px;height:22px}
-.login-note{margin-top:20px;font-size:12px;color:#A0AEC0;line-height:1.6}
+
+.field-wrap{text-align:left;margin-bottom:16px}
+.field-lbl{font-size:12px;font-weight:800;color:#718096;display:block;margin-bottom:6px}
+.login-input{width:100%;font-family:"Nunito",sans-serif;font-size:14px;font-weight:600;border:2px solid #E2E8F0;border-radius:12px;padding:12px 16px;outline:none;color:#2D3748;background:#F8FAFC;transition:border-color .2s}
+.login-input:focus{border-color:#5BA4CF;background:#fff}
+.login-btn{width:100%;background:linear-gradient(135deg,#5BA4CF,#38A89D);color:#fff;font-family:"Nunito",sans-serif;font-size:15px;font-weight:800;border:none;border-radius:14px;padding:14px;cursor:pointer;margin-bottom:16px;transition:all .2s;box-shadow:0 6px 20px rgba(91,164,207,.3)}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(91,164,207,.4)}
+.login-note{margin-top:0;font-size:12px;color:#A0AEC0;line-height:1.6}
 .login-note strong{color:#718096}
 .login-err{background:#FDEAEA;border:1.5px solid #E07B7B;border-radius:12px;padding:12px 16px;margin-top:16px;font-size:13px;font-weight:700;color:#E07B7B;display:none;text-align:left}
 .login-loading{margin-top:16px;font-size:13px;color:#718096;font-weight:700;display:none}
@@ -140,15 +143,18 @@ td{padding:12px 14px;vertical-align:middle}
   <div class="login-card">
     <span class="login-logo">🛡️</span>
     <h1>Багшийн систем</h1>
-    <p class="sub">Дээрэлхэлтийн мэдэгдлийн удирдлагын хэсэг.<br>Зөвхөн эрх бүхий багш, нийгмийн ажилтанд нээлттэй.</p>
-    <div class="divider"><hr><span>Google бүртгэлээрээ нэвтрэх</span><hr></div>
-    <button class="google-btn" onclick="signInWithGoogle()">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-      Google-ээр нэвтрэх
-    </button>
-    <div class="login-loading" id="loginLoading">⏳ Нэвтэрч байна...</div>
+    <p class="sub">Мэдэгдлийн удирдлагын хэсэг.<br>Зөвхөн эрх бүхий нийгмийн ажилтанд нээлттэй.</p>
+    <div class="field-wrap">
+      <label class="field-lbl">📧 И-мэйл хаяг</label>
+      <input type="email" id="loginEmail" class="login-input" placeholder="email@gmail.com" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+    </div>
+    <div class="field-wrap">
+      <label class="field-lbl">🔒 Нууц үг</label>
+      <input type="password" id="loginPass" class="login-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
     <div class="login-err" id="loginErr"></div>
-    <p class="login-note">Зөвхөн <strong>зөвшөөрөгдсөн бүртгэл</strong>тэй хэрэглэгч нэвтэрч чадна.<br>Асуудал гарвал системийн хариуцагчтай холбогдоно уу.</p>
+    <button class="login-btn" onclick="doLogin()">🚀 Нэвтрэх</button>
+    <p class="login-note">Зөвхөн <strong>зөвшөөрөгдсөн</strong> нийгмийн ажилтан нэвтэрч чадна.</p>
   </div>
 </div>
 
@@ -270,14 +276,11 @@ td{padding:12px 14px;vertical-align:middle}
 // 1) Apps Script deploy URL
 var APPS_URL = "https://script.google.com/macros/s/AKfycbzzI77mqFrMuRoSn3u3shmM1NgqlwCql3ncjF2BvzX7V_eJE-0K95le859Hax1h1WrB/exec";
 
-// 2) Google Cloud Console → OAuth 2.0 Client ID
-var GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID.apps.googleusercontent.com";
-
-// 3) Зөвшөөрөгдсөн email-үүд — нэмж болно
-//    level: "Дунд анги" | "Ахлах анги" | "all" (хоёуланг харна)
+// Зөвшөөрөгдсөн нэвтрэлтүүд
+// нууц үгийг өөрчлөхдөө энд засна
 var ALLOWED = {
-  "uudusbayarsaikhan@gmail.com": { level: "Ахлах анги", role: "Ахлах ангийн нийгмийн ажилтан" },
-  "m24mf2041@ufe.edu.mn":        { level: "Дунд анги",  role: "Дунд ангийн нийгмийн ажилтан"  }
+  "uudusbayarsaikhan@gmail.com": { password: "12345678", level: "Ахлах анги", role: "Ахлах ангийн нийгмийн ажилтан" },
+  "m24md2041@ufe.edu.mn":        { password: "12345678", level: "Дунд анги",  role: "Дунд ангийн нийгмийн ажилтан"  }
 };
 // ══════════════════════════════════════════════════════════
 
@@ -287,54 +290,37 @@ var currentLevel = "all";
 var activeRow   = null;
 var filteredRows = [];
 
-// ── Google нэвтрэлт ──
-function signInWithGoogle() {
-  document.getElementById("loginLoading").style.display = "block";
-  document.getElementById("loginErr").style.display    = "none";
-  var client = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: "email profile openid",
-    callback: function(resp) {
-      if (resp.error) { showErr("Google нэвтрэлт амжилтгүй болов. Дахин оролдоно уу."); return; }
-      fetchUserInfo(resp.access_token);
-    }
-  });
-  client.requestAccessToken();
-}
-
-function fetchUserInfo(token) {
-  fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-    headers: { Authorization: "Bearer " + token }
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(info) {
-    var email = (info.email || "").toLowerCase();
-    var perm  = ALLOWED[email];
-    if (!perm) {
-      showErr("❌ " + email + "\nЭнэ бүртгэл системд нэвтрэх эрхгүй байна.\nАсуудал гарвал хариуцагчтай холбогдоно уу.");
-      return;
-    }
-    currentUser = { email: email, name: info.name||email, picture: info.picture||"", level: perm.level, role: perm.role };
-    enterDashboard();
-  })
-  .catch(function() { showErr("Сүлжээний алдаа гарлаа. Дахин оролдоно уу."); });
+// ── Нэвтрэлт ──
+function doLogin() {
+  var email = (document.getElementById("loginEmail").value || "").trim().toLowerCase();
+  var pass  = document.getElementById("loginPass").value || "";
+  var errEl = document.getElementById("loginErr");
+  errEl.style.display = "none";
+  if (!email || !pass) { showErr("И-мэйл болон нууц үгээ оруулна уу."); return; }
+  var perm = ALLOWED[email];
+  if (!perm || perm.password !== pass) {
+    showErr("❌ И-мэйл эсвэл нууц үг буруу байна.");
+    document.getElementById("loginPass").value = "";
+    document.getElementById("loginPass").focus();
+    return;
+  }
+  currentUser = { email: email, name: email, picture: "", level: perm.level, role: perm.role };
+  enterDashboard();
 }
 
 function showErr(msg) {
-  document.getElementById("loginLoading").style.display = "none";
   var el = document.getElementById("loginErr");
   el.style.display = "block";
-  el.style.whiteSpace = "pre-line";
   el.textContent = msg;
 }
 
 function signOut() {
   currentUser = null; allData = []; filteredRows = [];
-  google.accounts.id.disableAutoSelect();
   document.getElementById("dashPage").style.display  = "none";
   document.getElementById("loginPage").style.display = "flex";
   document.getElementById("loginErr").style.display  = "none";
-  document.getElementById("loginLoading").style.display = "none";
+  document.getElementById("loginEmail").value = "";
+  document.getElementById("loginPass").value  = "";
 }
 
 function enterDashboard() {
@@ -342,7 +328,6 @@ function enterDashboard() {
   document.getElementById("dashPage").style.display  = "block";
   document.getElementById("userName").textContent    = currentUser.name;
   document.getElementById("levelLabel").textContent  = currentUser.role;
-  document.getElementById("userAvatar").src          = currentUser.picture;
   // "all" эрхтэй бол tabs харуул
   if (currentUser.level === "all") {
     document.getElementById("levelTabs").style.display = "flex";
