@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Багшийн Dashboard — Мэдэгдлийн удирдлага</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -273,8 +275,16 @@ td{padding:12px 14px;vertical-align:middle}
 //  ТОХИРГОО — доорх 2 утгыг өөрийнхөөрөө солино уу
 // ══════════════════════════════════════════════════════════
 
-// 1) Apps Script deploy URL
-var APPS_URL = "https://script.google.com/macros/s/AKfycbzzI77mqFrMuRoSn3u3shmM1NgqlwCql3ncjF2BvzX7V_eJE-0K95le859Hax1h1WrB/exec";
+const firebaseConfig = {
+    apiKey: "AIzaSyB0xlNX4MQwVtejTT_3KmyLSp3MUueQFVg",
+    authDomain: "school-bullying-report.firebaseapp.com",
+    projectId: "school-bullying-report",
+    storageBucket: "school-bullying-report.firebasestorage.app",
+    messagingSenderId: "644776624035",
+    appId: "1:644776624035:web:0037ea74bd6300cc622416"
+  };
+  if (!firebase.apps || !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  const db = firebase.firestore();
 
 // Зөвшөөрөгдсөн нэвтрэлтүүд
 // нууц үгийг өөрчлөхдөө энд засна
@@ -355,12 +365,23 @@ function loadData() {
   document.getElementById("tblMain").style.display  = "none";
   document.getElementById("tblEmpty").style.display = "none";
 
-  var lvParam = (currentUser.level === "all") ? "" : currentUser.level;
-  fetch(APPS_URL + "?action=list&level=" + encodeURIComponent(lvParam))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      allData = d.rows || [];
-      // Tab тоолуур
+  var query = db.collection("reports").orderBy("createdAt", "desc");
+  if (currentUser.level !== "all") {
+    query = query.where("schoolLevel", "==", currentUser.level);
+  }
+  query.get()
+    .then(function(snapshot) {
+      allData = [];
+      snapshot.forEach(function(doc) {
+        var d = doc.data();
+        d.code = doc.id;
+        // date форматлах
+        if (d.createdAt && d.createdAt.toDate) {
+          var dt = d.createdAt.toDate();
+          d.date = dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0")+" "+String(dt.getHours()).padStart(2,"0")+":"+String(dt.getMinutes()).padStart(2,"0");
+        }
+        allData.push(d);
+      });
       document.getElementById("cntAll").textContent     = allData.length + " мэдэгдэл";
       document.getElementById("cntDund").textContent    = allData.filter(function(r){return r.schoolLevel==="Дунд анги";}).length + " мэдэгдэл";
       document.getElementById("cntAkhlakh").textContent = allData.filter(function(r){return r.schoolLevel==="Ахлах анги";}).length + " мэдэгдэл";
@@ -368,8 +389,8 @@ function loadData() {
       renderTable();
       document.getElementById("tblLoading").style.display = "none";
     })
-    .catch(function() {
-      document.getElementById("tblLoading").innerHTML = "⚠️ Мэдээлэл ачааллахад алдаа гарлаа. Шинэчлэх дарна уу.";
+    .catch(function(err) {
+      document.getElementById("tblLoading").innerHTML = "⚠️ Алдаа: " + err.message;
     });
 }
 
@@ -478,17 +499,17 @@ function saveStatus() {
   var btn   = document.getElementById("mSaveBtn");
   btn.disabled = true;
   btn.textContent = "⏳ Хадгалж байна...";
-  fetch(APPS_URL+"?action=updateStatus&code="+encodeURIComponent(activeRow.code)+"&status="+encodeURIComponent(newSt))
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if (d.success) {
-        activeRow.status = newSt;
-        updateStats(); renderTable();
-        btn.textContent = "✅ Хадгалагдлаа!";
-        setTimeout(closeModal, 800);
-      } else { btn.disabled=false; btn.textContent="❌ Алдаа — дахин оролд"; }
+  db.collection("reports").doc(activeRow.code).update({ status: newSt })
+    .then(function() {
+      activeRow.status = newSt;
+      updateStats(); renderTable();
+      btn.textContent = "✅ Хадгалагдлаа!";
+      setTimeout(closeModal, 800);
     })
-    .catch(function(){ btn.disabled=false; btn.textContent="❌ Алдаа — дахин оролд"; });
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = "❌ Алдаа — дахин оролд";
+    });
 }
 
 // ── Excel ──
