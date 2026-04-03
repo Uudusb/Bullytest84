@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Мэдэгдлийн явц шалгах</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -106,7 +108,16 @@ body{font-family:"Nunito",sans-serif;background:#F0F7FF;color:#2D3748;min-height
   </div>
 </div>
 <script>
-var APPS_URL="https://script.google.com/macros/s/AKfycbzzI77mqFrMuRoSn3u3shmM1NgqlwCql3ncjF2BvzX7V_eJE-0K95le859Hax1h1WrB/exec";
+const firebaseConfig = {
+    apiKey: "AIzaSyB0xlNX4MQwVtejTT_3KmyLSp3MUueQFVg",
+    authDomain: "school-bullying-report.firebaseapp.com",
+    projectId: "school-bullying-report",
+    storageBucket: "school-bullying-report.firebasestorage.app",
+    messagingSenderId: "644776624035",
+    appId: "1:644776624035:web:0037ea74bd6300cc622416"
+  };
+  if (!firebase.apps || !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  const db = firebase.firestore();
 var STATUS_CFG={
   "Хянагдаж байна":{color:"#5BA4CF",bg:"#EAF4FB",border:"#C5E1F5",icon:"🔍",step:1,desc:"Сургуулийн эрх бүхий багш таны мэдэгдлийг хянаж байна"},
   "Арга хэмжээ авагдаж байна":{color:"#D97706",bg:"#FFFBEB",border:"#FDE68A",icon:"⚡",step:2,desc:"Нөхцөл байдлыг шийдвэрлэж байна"},
@@ -130,14 +141,21 @@ function checkStatus(){
   btn.innerHTML="⏳ Хайж байна...";btn.disabled=true;
   document.getElementById("resultCard").style.display="none";
   document.getElementById("errorCard").style.display="none";
-  fetch(APPS_URL+"?code="+code)
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data.success){showResult(data);}
-    else{document.getElementById("wrongCode").textContent=code;document.getElementById("errorCard").style.display="block";document.getElementById("errorCard").scrollIntoView({behavior:"smooth"});}
+  db.collection("reports").doc(code).get()
+  .then(function(doc){
+    if(doc.exists){
+      var data=doc.data();
+      data.success=true;
+      data.code=code;
+      showResult(data);
+    } else {
+      document.getElementById("wrongCode").textContent=code;
+      document.getElementById("errorCard").style.display="block";
+      document.getElementById("errorCard").scrollIntoView({behavior:"smooth"});
+    }
     btn.innerHTML="🔍 Статус шалгах";btn.disabled=false;
   })
-  .catch(function(){alert("Алдаа гарлаа.");btn.innerHTML="🔍 Статус шалгах";btn.disabled=false;});
+  .catch(function(err){alert("Алдаа гарлаа: "+err.message);btn.innerHTML="🔍 Статус шалгах";btn.disabled=false;});
 }
 function showResult(data){
   var cfg=STATUS_CFG[data.status]||STATUS_CFG["Хянагдаж байна"];
