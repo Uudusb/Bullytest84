@@ -781,38 +781,39 @@
   var EMAIL_DUND    = "m24mf2041@ufe.edu.mn";
 
   // ── И-мэйл мэдэгдэл — Google Apps Script ──
-  var NOTIFY_URL = "https://script.google.com/macros/s/AKfycbxmZHkdSGSaFR6NkU_FES-eNpR0QoiYMmes-VSHkNR4PSG3F8-NOktJBvMhLHrQLKSk/exec";
+  var NOTIFY_URL = "https://script.google.com/macros/s/AKfycbw4g6BfAGCXjKXzTAOQCScv6tGNU7NWYqZjlLodjMah2BrnPY1rJa3Q-MraeLEvSSVY/exec";
 
   function sendNotificationEmail(payload, code) {
-    var message = [
+    var lines = [
       "Шинэ дээрэлхэлтийн мэдэгдэл ирлээ.",
-      "",
-      "Tracking код : " + code,
-      "Анги түвшин : " + payload.schoolLevel,
+      "================================",
+      "Tracking код  : " + code,
+      "Анги түвшин  : " + payload.schoolLevel,
       "Анги, бүлэг  : " + payload.angi + " " + payload.buleg,
-      "Мэдэгдэгч   : " + (payload.ner || "Нууцлагдсан") + " (" + payload.medegedech + ")",
-      "Дээрэлхэлт  : " + payload.torlud,
-      "Давтамж     : " + payload.davtamj,
+      "Мэдэгдэгч    : " + (payload.ner || "Нууцлагдсан") + " (" + payload.medegedech + ")",
+      "Дээрэлхэлт   : " + payload.torlud,
+      "Давтамж      : " + payload.davtamj,
       "Болсон газар : " + payload.gazar,
-      "",
+      "================================",
       "Тайлбар:",
       payload.tailbar,
-      "",
-      "Дээрэлхэгч  : " + (payload.bully_ner || "Мэдэгдээгүй"),
+      "================================",
+      "Дээрэлхэгч   : " + (payload.bully_ner || "Мэдэгдээгүй"),
       "Нотлох баримт: " + payload.notloh,
-      "",
-      "Dashboard-аас харах: admin.html"
-    ].join("\n");
+      "Нэмэлт тайлбар: " + (payload.nemeltel || "-"),
+      "================================"
+    ];
 
     fetch(NOTIFY_URL, {
       method: "POST",
       body: JSON.stringify({
         code:    code,
         level:   payload.schoolLevel,
-        message: message
+        message: lines.join("\n"),
+        subject: "Шинэ мэдэгдэл - Код: " + code + " (" + payload.schoolLevel + ")"
       }),
       headers: { "Content-Type": "text/plain;charset=utf-8" }
-    }).catch(function(err) { console.warn("И-мэйл алдаа:", err); });
+    }).catch(function(err) { console.warn("Email error:", err); });
   }
 
 
