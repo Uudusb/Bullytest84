@@ -29,7 +29,7 @@ body{font-family:"Nunito",sans-serif;background:#F0F7FF;color:#2D3748;min-height
 .login-input:focus{border-color:#5BA4CF;background:#fff}
 .login-btn{width:100%;background:linear-gradient(135deg,#5BA4CF,#38A89D);color:#fff;font-family:"Nunito",sans-serif;font-size:15px;font-weight:800;border:none;border-radius:14px;padding:14px;cursor:pointer;margin-bottom:16px;transition:all .2s;box-shadow:0 6px 20px rgba(91,164,207,.3)}
 .login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(91,164,207,.4)}
-.forgot-btn{width:100%;background:none;border:none;color:#A0AEC0;font-family:"Nunito",sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;margin-bottom:12px;text-decoration:underline;padding:4px}
+.forgot-btn{background:none;border:none;color:#5BA4CF;font-family:"Nunito",sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;padding:4px}
 .forgot-btn:hover{color:#5BA4CF}
 .login-note{margin-top:0;font-size:12px;color:#A0AEC0;line-height:1.6}
 .login-note strong{color:#718096}
@@ -172,6 +172,7 @@ td{padding:12px 14px;vertical-align:middle}
     </div>
     <div class="login-err" id="loginErr"></div>
     <button class="login-btn" onclick="doLogin()">🚀 Нэвтрэх</button>
+    <button onclick="openForgotModal()" style="width:100%;background:none;border:none;color:#5BA4CF;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;padding:8px;margin-top:4px">🔑 Нууц үг мартсан уу?</button>
     <p class="login-note">Зөвхөн <strong>зөвшөөрөгдсөн</strong> нийгмийн ажилтан нэвтэрч чадна.</p>
   </div>
 </div>
