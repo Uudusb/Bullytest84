@@ -783,33 +783,40 @@
   var NOTIFY_URL = "https://script.google.com/macros/s/AKfycbw4g6BfAGCXjKXzTAOQCScv6tGNU7NWYqZjlLodjMah2BrnPY1rJa3Q-MraeLEvSSVY/exec";
 
   function sendNotificationEmail(payload, code) {
-    var lines = [
-      "Шинэ дээрэлхэлтийн мэдэгдэл ирлээ.",
-      "================================",
-      "Tracking код  : " + code,
-      "Анги түвшин  : " + payload.schoolLevel,
-      "Анги, бүлэг  : " + payload.angi + " " + payload.buleg,
-      "Мэдэгдэгч    : " + (payload.ner || "Нууцлагдсан") + " (" + payload.medegedech + ")",
-      "Дээрэлхэлт   : " + payload.torlud,
-      "Давтамж      : " + payload.davtamj,
-      "Болсон газар : " + payload.gazar,
-      "================================",
-      "Тайлбар:",
-      payload.tailbar,
-      "================================",
-      "Дээрэлхэгч   : " + (payload.bully_ner || "Мэдэгдээгүй"),
-      "Нотлох баримт: " + payload.notloh,
-      "Нэмэлт тайлбар: " + (payload.nemeltel || "-"),
-      "================================"
-    ];
+    var msg = "";
+    msg += "Шинэ дээрэлхэлтийн мэдэгдэл ирлээ.\r\n";
+    msg += "================================\r\n";
+    msg += "Tracking код    : " + code + "\r\n";
+    msg += "Анги түвшин     : " + payload.schoolLevel + "\r\n";
+    msg += "Анги            : " + payload.angi + "\r\n";
+    msg += "Бүлэг           : " + payload.buleg + "\r\n";
+    msg += "Мэдэгдэгчийн нэр: " + (payload.ner || "Нууцлагдсан") + "\r\n";
+    msg += "Мэдэгдэгч       : " + (payload.medegedech || "-") + "\r\n";
+    msg += "Дээрэлхэлтийн төрөл: " + (payload.torlud || "-") + "\r\n";
+    msg += "Давтамж         : " + (payload.davtamj || "-") + "\r\n";
+    msg += "Болсон огноо    : " + (payload.ognoo || "-") + "\r\n";
+    msg += "Болсон газар    : " + (payload.gazar || "-") + "\r\n";
+    msg += "Гэрч байсан     : " + (payload.gerech || "-") + "\r\n";
+    msg += "================================\r\n";
+    msg += "Тайлбар:\r\n" + (payload.tailbar || "-") + "\r\n";
+    msg += "================================\r\n";
+    msg += "Дээрэлхэгчийн нэр  : " + (payload.bully_ner || "Мэдэгдээгүй") + "\r\n";
+    msg += "Дээрэлхэгчийн анги : " + (payload.bully_angi || "-") + "\r\n";
+    msg += "Дээрэлхэгчийн хүйс : " + (payload.bully_huiis || "-") + "\r\n";
+    msg += "Дээрэлхэгчийн тодорхойлолт:\r\n" + (payload.bully_todorh || "-") + "\r\n";
+    msg += "================================\r\n";
+    msg += "Нотлох баримт   : " + (payload.notloh || "-") + "\r\n";
+    msg += "Өмнө мэдэгдсэн  : " + (payload.omno_medegsed || "-") + "\r\n";
+    msg += "Нэмэлт тайлбар  :\r\n" + (payload.nemeltel || "-") + "\r\n";
+    msg += "================================\r\n";
 
     fetch(NOTIFY_URL, {
       method: "POST",
       body: JSON.stringify({
         code:    code,
         level:   payload.schoolLevel,
-        message: lines.join("\n"),
-        subject: "Шинэ мэдэгдэл - Код: " + code + " (" + payload.schoolLevel + ")"
+        message: msg,
+        subject: "[Дээрэлхэлт] Шинэ мэдэгдэл #" + code + " — " + payload.schoolLevel
       }),
       headers: { "Content-Type": "text/plain;charset=utf-8" }
     }).catch(function(err) { console.warn("Email error:", err); });
