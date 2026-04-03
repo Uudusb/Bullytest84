@@ -270,22 +270,14 @@ td{padding:12px 14px;vertical-align:middle}
       <button class="m-close" onclick="closeForgotModal()">✕</button>
     </div>
     <div class="pw-body">
-      <p style="font-size:13px;color:#718096;margin-bottom:16px;line-height:1.6">Бүртгэлтэй и-мэйл хаягаа оруулаад шинэ нууц үгээ тавина уу. Зөвхөн бүртгэлтэй и-мэйлд ажиллана.</p>
+      <p style="font-size:13px;color:#718096;margin-bottom:16px;line-height:1.6">И-мэйл хаягаа оруулна уу. Таны бүртгэлтэй и-мэйл рүү шинэ нууц үг илгээгдэнэ.</p>
       <div class="pw-err" id="forgotErr"></div>
       <div class="pw-ok" id="forgotOk"></div>
       <div class="pw-field">
         <label>И-мэйл хаяг</label>
         <input type="email" id="forgotEmail" placeholder="email@gmail.com">
       </div>
-      <div class="pw-field" id="forgotNewWrap">
-        <label>Шинэ нууц үг</label>
-        <input type="password" id="forgotNew" placeholder="Дор хаяж 6 тэмдэгт">
-      </div>
-      <div class="pw-field" id="forgotConfirmWrap">
-        <label>Шинэ нууц үг давтах</label>
-        <input type="password" id="forgotConfirm" placeholder="Дахин оруулах">
-      </div>
-      <button class="pw-btn" id="forgotBtn" onclick="resetPassword()">✅ Нууц үг шинэчлэх</button>
+      <button class="pw-btn" id="forgotBtn" onclick="resetPassword()">📧 Нууц үг и-мэйлээр авах</button>
     </div>
   </div>
 </div>
@@ -416,8 +408,6 @@ function showErr(msg) {
 // ── Нууц үг мартсан ──
 function openForgotModal() {
   document.getElementById("forgotEmail").value = "";
-  document.getElementById("forgotNew").value = "";
-  document.getElementById("forgotConfirm").value = "";
   document.getElementById("forgotErr").style.display = "none";
   document.getElementById("forgotOk").style.display  = "none";
   document.getElementById("forgotModalBg").classList.add("open");
@@ -426,33 +416,56 @@ function closeForgotModal() {
   document.getElementById("forgotModalBg").classList.remove("open");
 }
 function resetPassword() {
-  var email   = (document.getElementById("forgotEmail").value || "").trim().toLowerCase();
-  var nw      = document.getElementById("forgotNew").value;
-  var confirm = document.getElementById("forgotConfirm").value;
-  var errEl   = document.getElementById("forgotErr");
-  var okEl    = document.getElementById("forgotOk");
+  var email = (document.getElementById("forgotEmail").value || "").trim().toLowerCase();
+  var errEl = document.getElementById("forgotErr");
+  var okEl  = document.getElementById("forgotOk");
   errEl.style.display = "none";
   okEl.style.display  = "none";
 
   if (!email) { errEl.textContent = "И-мэйл хаягаа оруулна уу."; errEl.style.display="block"; return; }
   if (!ALLOWED[email]) { errEl.textContent = "❌ Энэ и-мэйл хаяг бүртгэлгүй байна."; errEl.style.display="block"; return; }
-  if (!nw || nw.length < 6) { errEl.textContent = "Нууц үг дор хаяж 6 тэмдэгт байх ёстой."; errEl.style.display="block"; return; }
-  if (nw !== confirm) { errEl.textContent = "❌ Нууц үг таарахгүй байна."; errEl.style.display="block"; return; }
 
   var btn = document.getElementById("forgotBtn");
-  btn.disabled = true; btn.textContent = "⏳ Хадгалж байна...";
+  btn.disabled = true;
+  btn.textContent = "⏳ Илгээж байна...";
 
-  db.collection("admins").doc(email).set({ password: nw }, { merge: true })
+  // Санамсаргүй шинэ нууц үг үүсгэх
+  var chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  var newPass = "";
+  for (var i = 0; i < 8; i++) {
+    newPass += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  // Firebase-д хадгалах
+  db.collection("admins").doc(email).set({ password: newPass }, { merge: true })
     .then(function() {
-      ALLOWED[email].password = nw;
-      okEl.textContent = "✅ Нууц үг амжилттай шинэчлэгдлээ! Одоо нэвтэрч болно.";
+      ALLOWED[email].password = newPass;
+
+      // Apps Script-ээр и-мэйл явуулах
+      var NOTIFY_URL = "https://script.google.com/macros/s/AKfycbw4g6BfAGCXjKXzTAOQCScv6tGNU7NWYqZjlLodjMah2BrnPY1rJa3Q-MraeLEvSSVY/exec";
+      var msg = "Таны шинэ нууц үг: " + newPass + "\r\n\r\nНэвтэрсний дараа нууц үгээ солино уу.";
+      fetch(NOTIFY_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          code: "RESET",
+          level: email === "uudusbayarsaikhan@gmail.com" ? "Ахлах анги" : "Дунд анги",
+          message: msg,
+          subject: "[Багшийн систем] Таны шинэ нууц үг"
+        }),
+        headers: { "Content-Type": "text/plain;charset=utf-8" }
+      });
+
+      okEl.textContent = "✅ Шинэ нууц үг таны и-мэйл рүү илгээгдлээ!";
       okEl.style.display = "block";
-      btn.disabled = false; btn.textContent = "✅ Нууц үг шинэчлэх";
-      setTimeout(function() { closeForgotModal(); }, 2000);
-    }).catch(function(err) {
-      errEl.textContent = "Firebase алдаа: " + err.message;
+      btn.disabled = false;
+      btn.textContent = "📧 Нууц үг и-мэйлээр авах";
+      setTimeout(closeForgotModal, 2500);
+    })
+    .catch(function(err) {
+      errEl.textContent = "Алдаа гарлаа: " + err.message;
       errEl.style.display = "block";
-      btn.disabled = false; btn.textContent = "✅ Нууц үг шинэчлэх";
+      btn.disabled = false;
+      btn.textContent = "📧 Нууц үг и-мэйлээр авах";
     });
 }
 
