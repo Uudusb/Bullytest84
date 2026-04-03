@@ -193,6 +193,8 @@ td{padding:12px 14px;vertical-align:middle}
         <span class="user-name" id="userName">—</span>
       </div>
       <button class="tb-btn green" onclick="exportExcel()">📊 Excel</button>
+      <a href="index.html" class="tb-btn" style="text-decoration:none">📋 Форм</a>
+      <a href="track.html" class="tb-btn" style="text-decoration:none">🔍 Явц</a>
       <button class="tb-btn" onclick="openPwModal()" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3)">🔑 Нууц үг</button>
       <button class="tb-btn red" onclick="signOut()">🚪 Гарах</button>
     </div>
@@ -355,8 +357,8 @@ const firebaseConfig = {
 // Зөвшөөрөгдсөн нэвтрэлтүүд
 // нууц үгийг өөрчлөхдөө энд засна
 var ALLOWED = {
-  "uudusbayarsaikhan@gmail.com": { password: "12345678", level: "Ахлах анги", role: "Ахлах ангийн нийгмийн ажилтан" },
-  "m24md2041@ufe.edu.mn":        { password: "12345678", level: "Дунд анги",  role: "Дунд ангийн нийгмийн ажилтан"  }
+  "uudusbayarsaikhan@gmail.com": { password: "12345678", level: "all",       role: "Ерөнхий админ" },
+  "m24md2041@ufe.edu.mn":        { password: "12345678", level: "Дунд анги", role: "Дунд ангийн нийгмийн ажилтан" }
 };
 // ══════════════════════════════════════════════════════════
 
@@ -442,13 +444,13 @@ function resetPassword() {
       ALLOWED[email].password = newPass;
 
       // Apps Script-ээр и-мэйл явуулах
-      var NOTIFY_URL = "https://script.google.com/macros/s/AKfycbw4g6BfAGCXjKXzTAOQCScv6tGNU7NWYqZjlLodjMah2BrnPY1rJa3Q-MraeLEvSSVY/exec";
+      var NOTIFY_URL = "https://script.google.com/macros/s/AKfycbxMeu5hjE_kLdVviz_qOpLP7ogM4HKxf8G1R4GA3nALt9gZ1Ex5IZ7mx4I1yrfGPO5Qmw/exec";
       var msg = "Таны шинэ нууц үг: " + newPass + "\r\n\r\nНэвтэрсний дараа нууц үгээ солино уу.";
       fetch(NOTIFY_URL, {
         method: "POST",
         body: JSON.stringify({
           code: "RESET",
-          level: email === "uudusbayarsaikhan@gmail.com" ? "Ахлах анги" : "Дунд анги",
+          level: ALLOWED[email] ? ALLOWED[email].level : "Дунд анги",
           message: msg,
           subject: "[Багшийн систем] Таны шинэ нууц үг"
         }),
