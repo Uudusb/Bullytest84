@@ -408,10 +408,9 @@
       <div class="row2">
           <div class="field">
             <label class="field-label">
-              Нэр, овог
-              <span class="opt-tag">Заавал биш</span>
+              Нэр, овог <span class="req">*</span>
             </label>
-            <input type="text" id="f_ner" placeholder="Жишээ: Болд Батаа">
+            <input type="text" id="f_ner" placeholder="Жишээ: Болд Батаа" required>
           </div>
           <div class="field">
             <label class="field-label">
@@ -666,7 +665,7 @@
         </div>
         <div class="field">
           <label class="field-label">Анги, бүлэг <span class="opt-tag">Заавал биш</span></label>
-          <input type="text" id="f_bully_angi" placeholder="Жишээ: 8А эсвэл 9-р анги">
+          <input type="text" id="f_bully_angi" placeholder="Жишээ: 8-р анги, 3-р бүлэг">
         </div>
       </div>
 
@@ -906,6 +905,7 @@
   }
 
   function validate() {
+    if (vText("f_ner") === "Хоосон") { alert("Нэр, овогоо оруулна уу!"); return false; }
     if (!getRadio("schoolLevel")) { alert("Ангийн түвшинг сонгоно уу!"); return false; }
     if (vSelect("f_angi") === 0) { alert("Анги сонгоно уу!"); return false; }
     if (vSelect("f_buleg") === 0) { alert("Бүлэг сонгоно уу!"); return false; }
