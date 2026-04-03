@@ -461,8 +461,10 @@
           <label class="field-label">Бүлэг <span class="req">*</span></label>
           <select id="f_buleg" required>
             <option value="">Бүлэг сонгох</option>
-            <option>А бүлэг</option><option>Б бүлэг</option><option>В бүлэг</option>
-            <option>Г бүлэг</option><option>Д бүлэг</option>
+            <option>1-р бүлэг</option><option>2-р бүлэг</option><option>3-р бүлэг</option>
+            <option>4-р бүлэг</option><option>5-р бүлэг</option><option>6-р бүлэг</option>
+            <option>7-р бүлэг</option><option>8-р бүлэг</option><option>9-р бүлэг</option>
+            <option>10-р бүлэг</option><option>11-р бүлэг</option><option>12-р бүлэг</option>
           </select>
         </div>
       </div>
@@ -778,6 +780,41 @@
   var EMAIL_AKHLAKH = "uudusbayarsaikhan@gmail.com";
   var EMAIL_DUND    = "m24mf2041@ufe.edu.mn";
 
+  // ── И-мэйл мэдэгдэл — Google Apps Script ──
+  var NOTIFY_URL = "https://script.google.com/macros/s/AKfycbxmZHkdSGSaFR6NkU_FES-eNpR0QoiYMmes-VSHkNR4PSG3F8-NOktJBvMhLHrQLKSk/exec";
+
+  function sendNotificationEmail(payload, code) {
+    var message = [
+      "Шинэ дээрэлхэлтийн мэдэгдэл ирлээ.",
+      "",
+      "Tracking код : " + code,
+      "Анги түвшин : " + payload.schoolLevel,
+      "Анги, бүлэг  : " + payload.angi + " " + payload.buleg,
+      "Мэдэгдэгч   : " + (payload.ner || "Нууцлагдсан") + " (" + payload.medegedech + ")",
+      "Дээрэлхэлт  : " + payload.torlud,
+      "Давтамж     : " + payload.davtamj,
+      "Болсон газар : " + payload.gazar,
+      "",
+      "Тайлбар:",
+      payload.tailbar,
+      "",
+      "Дээрэлхэгч  : " + (payload.bully_ner || "Мэдэгдээгүй"),
+      "Нотлох баримт: " + payload.notloh,
+      "",
+      "Dashboard-аас харах: admin.html"
+    ].join("\n");
+
+    fetch(NOTIFY_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        code:    code,
+        level:   payload.schoolLevel,
+        message: message
+      }),
+      headers: { "Content-Type": "text/plain;charset=utf-8" }
+    }).catch(function(err) { console.warn("И-мэйл алдаа:", err); });
+  }
+
 
   function onLevelChange() {
     var level = getRadio("schoolLevel");
@@ -915,6 +952,7 @@
 
     db.collection("reports").doc(clientCode).set(payload)
       .then(function() {
+        sendNotificationEmail(payload, clientCode);
         window.location.href = "success.html?code=" + clientCode;
       })
       .catch(function(err) {
