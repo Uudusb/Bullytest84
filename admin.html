@@ -29,6 +29,8 @@ body{font-family:"Nunito",sans-serif;background:#F0F7FF;color:#2D3748;min-height
 .login-input:focus{border-color:#5BA4CF;background:#fff}
 .login-btn{width:100%;background:linear-gradient(135deg,#5BA4CF,#38A89D);color:#fff;font-family:"Nunito",sans-serif;font-size:15px;font-weight:800;border:none;border-radius:14px;padding:14px;cursor:pointer;margin-bottom:16px;transition:all .2s;box-shadow:0 6px 20px rgba(91,164,207,.3)}
 .login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(91,164,207,.4)}
+.forgot-btn{width:100%;background:none;border:none;color:#A0AEC0;font-family:"Nunito",sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;margin-bottom:12px;text-decoration:underline;padding:4px}
+.forgot-btn:hover{color:#5BA4CF}
 .login-note{margin-top:0;font-size:12px;color:#A0AEC0;line-height:1.6}
 .login-note strong{color:#718096}
 .login-err{background:#FDEAEA;border:1.5px solid #E07B7B;border-radius:12px;padding:12px 16px;margin-top:16px;font-size:13px;font-weight:700;color:#E07B7B;display:none;text-align:left}
@@ -114,6 +116,20 @@ td{padding:12px 14px;vertical-align:middle}
 .empty-box p{font-size:14px;font-weight:700;color:#A0AEC0}
 
 /* ── MODAL ── */
+.pw-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
+.pw-modal-bg.open{display:flex}
+.pw-modal{background:#fff;border-radius:22px;width:100%;max-width:400px;box-shadow:0 28px 100px rgba(0,0,0,.22);animation:mPop .22s ease}
+.pw-head{padding:18px 22px;border-bottom:1.5px solid #EDF2F7;display:flex;align-items:center;justify-content:space-between;border-radius:22px 22px 0 0}
+.pw-head h3{font-size:16px;font-weight:900;color:#2D3748}
+.pw-body{padding:24px}
+.pw-field{margin-bottom:16px}
+.pw-field label{font-size:12px;font-weight:800;color:#718096;display:block;margin-bottom:6px}
+.pw-field input{width:100%;font-family:"Nunito",sans-serif;font-size:14px;font-weight:600;border:2px solid #E2E8F0;border-radius:10px;padding:11px 14px;outline:none;color:#2D3748;background:#F8FAFC;transition:border-color .2s}
+.pw-field input:focus{border-color:#5BA4CF;background:#fff}
+.pw-err{background:#FDEAEA;border:1.5px solid #E07B7B;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:#E07B7B;margin-bottom:14px;display:none}
+.pw-ok{background:#EAF6EA;border:1.5px solid #5CB85C;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:#5CB85C;margin-bottom:14px;display:none}
+.pw-btn{width:100%;background:linear-gradient(135deg,#5BA4CF,#38A89D);color:#fff;font-family:"Nunito",sans-serif;font-size:14px;font-weight:800;border:none;border-radius:12px;padding:13px;cursor:pointer;transition:all .2s}
+.pw-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(91,164,207,.3)}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
 .modal-bg.open{display:flex}
 .modal{background:#fff;border-radius:22px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 28px 100px rgba(0,0,0,.22);animation:mPop .22s ease}
@@ -176,6 +192,7 @@ td{padding:12px 14px;vertical-align:middle}
         <span class="user-name" id="userName">—</span>
       </div>
       <button class="tb-btn green" onclick="exportExcel()">📊 Excel</button>
+      <button class="tb-btn" onclick="openPwModal()" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3)">🔑 Нууц үг</button>
       <button class="tb-btn red" onclick="signOut()">🚪 Гарах</button>
     </div>
   </div>
@@ -244,6 +261,61 @@ td{padding:12px 14px;vertical-align:middle}
   </div>
 </div>
 
+<!-- ══ FORGOT PASSWORD MODAL ══ -->
+<div class="pw-modal-bg" id="forgotModalBg" onclick="if(event.target===this)closeForgotModal()">
+  <div class="pw-modal">
+    <div class="pw-head">
+      <h3>🔑 Нууц үг сэргээх</h3>
+      <button class="m-close" onclick="closeForgotModal()">✕</button>
+    </div>
+    <div class="pw-body">
+      <p style="font-size:13px;color:#718096;margin-bottom:16px;line-height:1.6">И-мэйл хаягаа оруулна уу. Шинэ нууц үгийг Firebase-д тавьж өгнө.</p>
+      <div class="pw-err" id="forgotErr"></div>
+      <div class="pw-ok" id="forgotOk"></div>
+      <div class="pw-field">
+        <label>И-мэйл хаяг</label>
+        <input type="email" id="forgotEmail" placeholder="email@gmail.com">
+      </div>
+      <div class="pw-field" id="forgotNewWrap">
+        <label>Шинэ нууц үг</label>
+        <input type="password" id="forgotNew" placeholder="Дор хаяж 6 тэмдэгт">
+      </div>
+      <div class="pw-field" id="forgotConfirmWrap">
+        <label>Шинэ нууц үг давтах</label>
+        <input type="password" id="forgotConfirm" placeholder="Дахин оруулах">
+      </div>
+      <button class="pw-btn" id="forgotBtn" onclick="resetPassword()">✅ Нууц үг шинэчлэх</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PASSWORD MODAL ══ -->
+<div class="pw-modal-bg" id="pwModalBg" onclick="if(event.target===this)closePwModal()">
+  <div class="pw-modal">
+    <div class="pw-head">
+      <h3>🔑 Нууц үг солих</h3>
+      <button class="m-close" onclick="closePwModal()">✕</button>
+    </div>
+    <div class="pw-body">
+      <div class="pw-err" id="pwErr"></div>
+      <div class="pw-ok" id="pwOk">✅ Нууц үг амжилттай солигдлоо!</div>
+      <div class="pw-field">
+        <label>Одоогийн нууц үг</label>
+        <input type="password" id="pwCurrent" placeholder="••••••••">
+      </div>
+      <div class="pw-field">
+        <label>Шинэ нууц үг</label>
+        <input type="password" id="pwNew" placeholder="Дор хаяж 6 тэмдэгт">
+      </div>
+      <div class="pw-field">
+        <label>Шинэ нууц үг давтах</label>
+        <input type="password" id="pwConfirm" placeholder="Дахин оруулах">
+      </div>
+      <button class="pw-btn" onclick="changePassword()">🔑 Нууц үг солих</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL ══ -->
 <div class="modal-bg" id="modalBg" onclick="bgClose(event)">
   <div class="modal">
@@ -308,20 +380,131 @@ function doLogin() {
   errEl.style.display = "none";
   if (!email || !pass) { showErr("И-мэйл болон нууц үгээ оруулна уу."); return; }
   var perm = ALLOWED[email];
-  if (!perm || perm.password !== pass) {
-    showErr("❌ И-мэйл эсвэл нууц үг буруу байна.");
-    document.getElementById("loginPass").value = "";
-    document.getElementById("loginPass").focus();
-    return;
-  }
-  currentUser = { email: email, name: email, picture: "", level: perm.level, role: perm.role };
-  enterDashboard();
+  if (!perm) { showErr("❌ Энэ и-мэйл хаяг бүртгэлгүй байна."); return; }
+
+  // Firebase-аас нууц үг уншиж шалгах
+  db.collection("admins").doc(email).get().then(function(doc) {
+    var storedPass = doc.exists && doc.data().password ? doc.data().password : perm.password;
+    if (storedPass !== pass) {
+      showErr("❌ И-мэйл эсвэл нууц үг буруу байна.");
+      document.getElementById("loginPass").value = "";
+      document.getElementById("loginPass").focus();
+      return;
+    }
+    currentUser = { email: email, name: email, picture: "", level: perm.level, role: perm.role };
+    enterDashboard();
+  }).catch(function() {
+    // Firebase алдаа гарвал default нууц үгээр нэвтрэх
+    if (perm.password !== pass) {
+      showErr("❌ И-мэйл эсвэл нууц үг буруу байна.");
+      document.getElementById("loginPass").value = "";
+      return;
+    }
+    currentUser = { email: email, name: email, picture: "", level: perm.level, role: perm.role };
+    enterDashboard();
+  });
 }
 
 function showErr(msg) {
   var el = document.getElementById("loginErr");
   el.style.display = "block";
   el.textContent = msg;
+}
+
+// ── Нууц үг мартсан ──
+function openForgotModal() {
+  document.getElementById("forgotEmail").value = "";
+  document.getElementById("forgotNew").value = "";
+  document.getElementById("forgotConfirm").value = "";
+  document.getElementById("forgotErr").style.display = "none";
+  document.getElementById("forgotOk").style.display  = "none";
+  document.getElementById("forgotModalBg").classList.add("open");
+}
+function closeForgotModal() {
+  document.getElementById("forgotModalBg").classList.remove("open");
+}
+function resetPassword() {
+  var email   = (document.getElementById("forgotEmail").value || "").trim().toLowerCase();
+  var nw      = document.getElementById("forgotNew").value;
+  var confirm = document.getElementById("forgotConfirm").value;
+  var errEl   = document.getElementById("forgotErr");
+  var okEl    = document.getElementById("forgotOk");
+  errEl.style.display = "none";
+  okEl.style.display  = "none";
+
+  if (!email) { errEl.textContent = "И-мэйл хаягаа оруулна уу."; errEl.style.display="block"; return; }
+  if (!ALLOWED[email]) { errEl.textContent = "❌ Энэ и-мэйл хаяг бүртгэлгүй байна."; errEl.style.display="block"; return; }
+  if (!nw || nw.length < 6) { errEl.textContent = "Нууц үг дор хаяж 6 тэмдэгт байх ёстой."; errEl.style.display="block"; return; }
+  if (nw !== confirm) { errEl.textContent = "❌ Нууц үг таарахгүй байна."; errEl.style.display="block"; return; }
+
+  var btn = document.getElementById("forgotBtn");
+  btn.disabled = true; btn.textContent = "⏳ Хадгалж байна...";
+
+  db.collection("admins").doc(email).set({ password: nw }, { merge: true })
+    .then(function() {
+      ALLOWED[email].password = nw;
+      okEl.textContent = "✅ Нууц үг амжилттай шинэчлэгдлээ! Одоо нэвтэрч болно.";
+      okEl.style.display = "block";
+      btn.disabled = false; btn.textContent = "✅ Нууц үг шинэчлэх";
+      setTimeout(function() { closeForgotModal(); }, 2000);
+    }).catch(function(err) {
+      errEl.textContent = "Firebase алдаа: " + err.message;
+      errEl.style.display = "block";
+      btn.disabled = false; btn.textContent = "✅ Нууц үг шинэчлэх";
+    });
+}
+
+// ── Нууц үг солих ──
+function openPwModal() {
+  document.getElementById("pwCurrent").value = "";
+  document.getElementById("pwNew").value = "";
+  document.getElementById("pwConfirm").value = "";
+  document.getElementById("pwErr").style.display = "none";
+  document.getElementById("pwOk").style.display  = "none";
+  document.getElementById("pwModalBg").classList.add("open");
+}
+function closePwModal() {
+  document.getElementById("pwModalBg").classList.remove("open");
+}
+function changePassword() {
+  var cur     = document.getElementById("pwCurrent").value;
+  var nw      = document.getElementById("pwNew").value;
+  var confirm = document.getElementById("pwConfirm").value;
+  var errEl   = document.getElementById("pwErr");
+  var okEl    = document.getElementById("pwOk");
+  errEl.style.display = "none";
+  okEl.style.display  = "none";
+
+  if (!cur || !nw || !confirm) {
+    errEl.textContent = "Бүх талбарыг бөглөнө үү.";
+    errEl.style.display = "block"; return;
+  }
+  // Одоогийн нууц үг шалгах
+  if (ALLOWED[currentUser.email].password !== cur) {
+    errEl.textContent = "❌ Одоогийн нууц үг буруу байна.";
+    errEl.style.display = "block"; return;
+  }
+  if (nw.length < 6) {
+    errEl.textContent = "Шинэ нууц үг дор хаяж 6 тэмдэгт байх ёстой.";
+    errEl.style.display = "block"; return;
+  }
+  if (nw !== confirm) {
+    errEl.textContent = "❌ Шинэ нууц үг таарахгүй байна.";
+    errEl.style.display = "block"; return;
+  }
+  // Firebase-д хадгалах
+  db.collection("admins").doc(currentUser.email).set({ password: nw }, { merge: true })
+    .then(function() {
+      ALLOWED[currentUser.email].password = nw;
+      okEl.style.display = "block";
+      document.getElementById("pwCurrent").value = "";
+      document.getElementById("pwNew").value = "";
+      document.getElementById("pwConfirm").value = "";
+      setTimeout(closePwModal, 1500);
+    }).catch(function(err) {
+      errEl.textContent = "Firebase алдаа: " + err.message;
+      errEl.style.display = "block";
+    });
 }
 
 function signOut() {
@@ -365,7 +548,7 @@ function loadData() {
   document.getElementById("tblMain").style.display  = "none";
   document.getElementById("tblEmpty").style.display = "none";
 
-  var query = db.collection("reports").orderBy("createdAt", "desc");
+  var query = db.collection("reports");
   if (currentUser.level !== "all") {
     query = query.where("schoolLevel", "==", currentUser.level);
   }
@@ -381,6 +564,12 @@ function loadData() {
           d.date = dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0")+" "+String(dt.getHours()).padStart(2,"0")+":"+String(dt.getMinutes()).padStart(2,"0");
         }
         allData.push(d);
+      });
+      // Шинэ мэдэгдэл эхэнд гарах — JS-д sort хийх
+      allData.sort(function(a, b) {
+        var ta = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+        var tb = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+        return tb - ta;
       });
       document.getElementById("cntAll").textContent     = allData.length + " мэдэгдэл";
       document.getElementById("cntDund").textContent    = allData.filter(function(r){return r.schoolLevel==="Дунд анги";}).length + " мэдэгдэл";
